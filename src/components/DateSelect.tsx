@@ -1,11 +1,10 @@
 "use client";
-import React, { useState } from "react";
-import { Button, Flex, Segmented } from "antd";
-import type { FlexProps } from "antd";
+import React, { useState, useEffect } from "react";
+import { Flex } from "antd";
 import { FaArrowLeft, FaArrowRight } from "react-icons/fa";
 
 const boxStyle: React.CSSProperties = {
-	width: "100%",
+  width: "100%",
 };
 
 const justify = "center";
@@ -13,73 +12,74 @@ const justify = "center";
 const alignItems = "flex-start";
 
 const DateSelect = () => {
-	const date = new Date();
-	let day = date.getDate();
-	let month = date.getMonth() + 1;
-	let year = date.getFullYear();
-	let currentDate = `${day}-${month}-${year}`;
-
-	const [today,setToday] = useState(currentDate)
-
-	const dateChanger = (token: string) => {
-		if (token === "forward") {
-			date.setDate(date.getDate() + 1);
-			let day = date.getDate();
-			let month = date.getMonth() + 1;
-			let year = date.getFullYear();
-			let currentDate = `${day}-${month}-${year}`;
-			setToday(currentDate)
-			return;
-		} else if (token === "backward") {
-			date.setDate(date.getDate() - 1);
-			let day = date.getDate();
-			let month = date.getMonth() + 1;
-			let year = date.getFullYear();
-			let currentDate = `${day}-${month}-${year}`;
-			setToday(currentDate)
-			return;
-		}
+	const getCurrentDate = () => {
+		const today = new Date();
+		return today;
 	};
-	return (
-		<Flex align="start">
-			<Flex style={boxStyle} justify={justify} align={alignItems}>
-				<div
-					style={{
-						marginRight: "20px",
-						display: "flex",
-						alignItems: "center",
-						justifyContent: "center",
-					}}
-				>
-					<p onClick={() => dateChanger("backward")}>
-						<FaArrowLeft />
-					</p>
-				</div>
-				<div
-					style={{
-						display: "flex",
-						alignItems: "center",
-						justifyContent: "center",
-					}}
-				>
-					<p>Today: {today}</p>
-				</div>
+	
+	const formatDate = (date: Date): string => {
+		return date.toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' });
+	  };
+	
+	  const [selectedDate, setSelectedDate] = useState(getCurrentDate());
+	
+	  useEffect(() => {
+		setSelectedDate(getCurrentDate());
+	  }, []);
 
-				<div
-					style={{
-						marginLeft: "20px",
-						display: "flex",
-						alignItems: "center",
-						justifyContent: "center",
-					}}
-				>
-					<p onClick={() => dateChanger("forward")}>
-						<FaArrowRight />
-					</p>
-				</div>
-			</Flex>
-		</Flex>
-	);
+	  const updateDateForward = () => {
+		const newDate = new Date(selectedDate);
+		newDate.setDate(newDate.getDate() + 1);
+		setSelectedDate(newDate);
+	  };
+	
+	  const updateDateBackward = () => {
+		const newDate = new Date(selectedDate);
+		newDate.setDate(newDate.getDate() - 1);
+		setSelectedDate(newDate);
+	  };
+	
+
+  return (
+    <Flex align="start">
+      <Flex style={boxStyle} justify={justify} align={alignItems}>
+        <div
+          style={{
+            marginRight: "20px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <p onClick={updateDateBackward}>
+            <FaArrowLeft />
+          </p>
+        </div>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "flex-start",
+            justifyContent: "center",
+          }}
+        >
+          <p>Today: {formatDate(selectedDate)}</p>
+        </div>
+
+        <div
+          style={{
+            marginLeft: "20px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <p onClick={updateDateForward}>
+            <FaArrowRight />
+          </p>
+        </div>
+      </Flex>
+    </Flex>
+  );
 };
 
 export default DateSelect;
