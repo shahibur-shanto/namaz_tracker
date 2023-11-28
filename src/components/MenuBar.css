@@ -1,0 +1,21 @@
+.menu-bar {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.menu-bar > a {
+	margin: 0 10px;
+	color: black;
+}
+
+@media (max-width: 411px) {
+	.menu-bar {
+		flex-direction: column;
+		align-items: stretch;
+	}
+
+	.menu-bar > a {
+		margin: 5px 0;
+	}
+}
