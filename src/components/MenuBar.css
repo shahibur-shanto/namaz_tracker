@@ -9,9 +9,9 @@
 	color: black;
 }
 
-@media (max-width: 411px) {
+@media (max-width: 366px) {
 	.menu-bar {
-		flex-direction: column;
+		flex-direction: row;
 		align-items: stretch;
 	}
 
