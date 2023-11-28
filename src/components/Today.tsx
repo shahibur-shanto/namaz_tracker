@@ -98,7 +98,7 @@ const Today = () => {
 									backgroundColor: index % 2 === 0 ? "#f0f0f0" : "#d6c5c5",
 								}}
 							>
-								{value}
+								 {String(value)}
 							</Col>
 							<Col
 								key={index}
