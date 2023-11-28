@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect } from "react";
 import { Button, Col, Form, Input, Row, Select } from "antd";
-import { PRERENDER_REVALIDATE_ONLY_GENERATED_HEADER } from "next/dist/lib/constants";
+import { useRouter } from "next/navigation";
 
 const { Option } = Select;
 
@@ -27,6 +27,7 @@ async function getData() {
 }
 
 const Seetings = () => {
+	const router = useRouter();
 	const [form] = Form.useForm();
 
 	const onChangeMazhab = (value: string) => {
@@ -70,6 +71,7 @@ const Seetings = () => {
 	const onFinish = async (values: any) => {
 		const prayerTime = await getData();
 		localStorage.setItem("prayerTime", JSON.stringify(prayerTime));
+		router.push("/today");
 	};
 
 	const onReset = () => {
