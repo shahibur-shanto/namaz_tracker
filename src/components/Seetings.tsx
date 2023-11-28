@@ -33,10 +33,7 @@ const Seetings = () => {
 	const [form] = Form.useForm();
 	const [country, setCountry] = useState("");
 	const [countryCode, setCountryCode] = useState("");
-	// console.log(Country.getAllCountries());
-	// console.log(State.getAllStates());
 
-	
 	const onChangeMazhab = (value: string) => {
 		switch (value) {
 			case "Shafi":
@@ -68,6 +65,11 @@ const Seetings = () => {
 	};
 
 	const onChangeCountry = (value: string) => {
+		form.setFieldsValue({
+			city: null,
+			// or provide an initial value if needed
+		});
+
 		setCountry(value);
 		setCountryCode((prevCountryCode) => {
 			const selectedCountryCode = Country.getAllCountries().find(
@@ -91,7 +93,7 @@ const Seetings = () => {
 		// localStorage.setItem("prayerTime", JSON.stringify(prayerTime));
 		// localStorage.setItem("userData", JSON.stringify(values));
 		console.log(values);
-		
+
 		// router.push("/today");
 	};
 
@@ -130,9 +132,6 @@ const Seetings = () => {
 									{value.name}
 								</Option>
 							))}
-							{/* <Option value="Dhaka">Dhaka</Option>
-							<Option value="Noakhali">Noakhali</Option>
-							<Option value="Other">Other</Option> */}
 						</Select>
 					</Form.Item>
 					<Form.Item name="city" label="City" rules={[{ required: true }]}>
@@ -141,16 +140,11 @@ const Seetings = () => {
 							onChange={onChangeCity}
 							allowClear
 						>
-								{City.getCitiesOfCountry(countryCode)?.map((value, index) => (
+							{City.getCitiesOfCountry(countryCode)?.map((value, index) => (
 								<Option key={index} value={value.name}>
 									{value.name}
 								</Option>
 							))}
-
-
-							{/* <Option value="Dhaka">Dhaka</Option>
-							<Option value="Noakhali">Noakhali</Option>
-							<Option value="Other">Other</Option> */}
 						</Select>
 					</Form.Item>
 					<Form.Item name="mazhab" label="Mazhab" rules={[{ required: true }]}>
