@@ -18,15 +18,31 @@ interface Waqt {
 }
 const Today = () => {
 	const [data, setData] = useState<Waqt[] | null>(null);
-	
 
 	useEffect(() => {
 		const fetchData = async () => {
 			try {
+				const getUserData = localStorage.getItem("userData");
+
+				if (getUserData) {
+					const userData = JSON.parse(getUserData);
+					const { city, method } = userData;
+					const prayerTime = await fetch(
+						`https://api.aladhan.com/v1/calendarByCity/2023/11?city=${city}&country=Bangladesh&method=${method}`
+					);
+					const prayer = await prayerTime.json();
+					localStorage.setItem(
+						"prayerTime",
+						JSON.stringify(prayer.data[27].timings)
+					);
+					// console.log(prayer.data[27].timings);
+				}
 				const storedData = localStorage.getItem("prayerTime");
+
 				if (storedData) {
 					const newData = JSON.parse(storedData);
-					setData(newData[1].timings);
+					console.log(newData);
+					setData(newData);
 				} else {
 					console.log("No data found in local storage.");
 				}
@@ -98,7 +114,7 @@ const Today = () => {
 									backgroundColor: index % 2 === 0 ? "#f0f0f0" : "#d6c5c5",
 								}}
 							>
-								 {String(value)}
+								{String(value)}
 							</Col>
 							<Col
 								key={index}

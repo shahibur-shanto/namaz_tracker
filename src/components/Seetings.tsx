@@ -1,8 +1,10 @@
 "use client";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Button, Col, Form, Input, Row, Select } from "antd";
 import { useRouter } from "next/navigation";
 
+import { Country, City } from "country-state-city";
+import { ICountry, IState, ICity } from "country-state-city";
 const { Option } = Select;
 
 const layout = {
@@ -29,7 +31,12 @@ async function getData() {
 const Seetings = () => {
 	const router = useRouter();
 	const [form] = Form.useForm();
+	const [country, setCountry] = useState("");
+	const [countryCode, setCountryCode] = useState("");
+	// console.log(Country.getAllCountries());
+	// console.log(State.getAllStates());
 
+	
 	const onChangeMazhab = (value: string) => {
 		switch (value) {
 			case "Shafi":
@@ -59,6 +66,17 @@ const Seetings = () => {
 			default:
 		}
 	};
+
+	const onChangeCountry = (value: string) => {
+		setCountry(value);
+		setCountryCode((prevCountryCode) => {
+			const selectedCountryCode = Country.getAllCountries().find(
+				(e) => e.name === value
+			);
+			return selectedCountryCode?.isoCode || prevCountryCode;
+		});
+		
+	};
 	const onChangeMethod = (value: string) => {
 		switch (value) {
 			case "01":
@@ -69,9 +87,12 @@ const Seetings = () => {
 	};
 
 	const onFinish = async (values: any) => {
-		const prayerTime = await getData();
-		localStorage.setItem("prayerTime", JSON.stringify(prayerTime));
-		router.push("/today");
+		// const prayerTime = await getData();
+		// localStorage.setItem("prayerTime", JSON.stringify(prayerTime));
+		// localStorage.setItem("userData", JSON.stringify(values));
+		console.log(values);
+		
+		// router.push("/today");
 	};
 
 	const onReset = () => {
@@ -94,18 +115,45 @@ const Seetings = () => {
 					<Form.Item name="name" label="Name" rules={[{ required: true }]}>
 						<Input placeholder="Please enter your name" />
 					</Form.Item>
-					<Form.Item name="City" label="City" rules={[{ required: true }]}>
+					<Form.Item
+						name="country"
+						label="Country"
+						rules={[{ required: true }]}
+					>
 						<Select
-							placeholder="Select a City"
+							placeholder="Select your City"
+							onChange={onChangeCountry}
+							allowClear
+						>
+							{Country.getAllCountries().map((value, index) => (
+								<Option key={index} value={value.name}>
+									{value.name}
+								</Option>
+							))}
+							{/* <Option value="Dhaka">Dhaka</Option>
+							<Option value="Noakhali">Noakhali</Option>
+							<Option value="Other">Other</Option> */}
+						</Select>
+					</Form.Item>
+					<Form.Item name="city" label="City" rules={[{ required: true }]}>
+						<Select
+							placeholder="Select your City"
 							onChange={onChangeCity}
 							allowClear
 						>
-							<Option value="Dhaka">Dhaka</Option>
+								{City.getCitiesOfCountry(countryCode)?.map((value, index) => (
+								<Option key={index} value={value.name}>
+									{value.name}
+								</Option>
+							))}
+
+
+							{/* <Option value="Dhaka">Dhaka</Option>
 							<Option value="Noakhali">Noakhali</Option>
-							<Option value="Other">Other</Option>
+							<Option value="Other">Other</Option> */}
 						</Select>
 					</Form.Item>
-					<Form.Item name="Mazhab" label="Mazhab" rules={[{ required: true }]}>
+					<Form.Item name="mazhab" label="Mazhab" rules={[{ required: true }]}>
 						<Select
 							placeholder="Select Your Mazhab"
 							onChange={onChangeMazhab}
@@ -116,13 +164,17 @@ const Seetings = () => {
 							<Option value="03">Other</Option>
 						</Select>
 					</Form.Item>
-					<Form.Item name="Method" label="Method" rules={[{ required: true }]}>
+					<Form.Item
+						name="method"
+						label="Salat Time"
+						rules={[{ required: true }]}
+					>
 						<Select
-							placeholder="Select your method"
+							placeholder="Select your Method for Salat Time Calculation"
 							onChange={onChangeMethod}
 							allowClear
 						>
-							<Option value="01">University of Islamabad</Option>
+							<Option value="01">University of Scinece, Karachi</Option>
 						</Select>
 					</Form.Item>
 

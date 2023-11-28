@@ -6,9 +6,17 @@
 	margin-bottom: 20px;
 }
 
+.menu-link:hover {
+	background-color: #b8b8b8; /* Adjust the hover background color as needed */
+  }
+
+
+
+
 .menu-bar > a {
 	margin: 0 10px;
-	color: black;
+
+	background: "lightcyan";
 }
 
 @media (max-width: 366px) {
