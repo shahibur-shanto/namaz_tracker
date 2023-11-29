@@ -91,10 +91,10 @@ const Seetings = () => {
 	const onFinish = async (values: any) => {
 		// const prayerTime = await getData();
 		// localStorage.setItem("prayerTime", JSON.stringify(prayerTime));
-		// localStorage.setItem("userData", JSON.stringify(values));
+		localStorage.setItem("userData", JSON.stringify(values));
 		console.log(values);
 
-		// router.push("/today");
+		router.push("/today");
 	};
 
 	const onReset = () => {
