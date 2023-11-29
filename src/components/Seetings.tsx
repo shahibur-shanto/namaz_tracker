@@ -36,13 +36,13 @@ const Seetings = () => {
 
 	const onChangeMazhab = (value: string) => {
 		switch (value) {
-			case "Shafi":
+			case "01":
 				form.setFieldsValue({ note: "Hi, man!" });
 				break;
-			case "Hanafi":
+			case "02":
 				form.setFieldsValue({ note: "Hi, lady!" });
 				break;
-			case "Other":
+			case "03":
 				form.setFieldsValue({ note: "Hi there!" });
 				break;
 			default:
@@ -77,13 +77,16 @@ const Seetings = () => {
 			);
 			return selectedCountryCode?.isoCode || prevCountryCode;
 		});
-		
 	};
 	const onChangeMethod = (value: string) => {
 		switch (value) {
 			case "01":
 				form.setFieldsValue({ note: "Thanks " });
 				break;
+			case "02":
+				form.setFieldsValue({ note: "Thanks " });
+				break;
+
 			default:
 		}
 	};
@@ -168,7 +171,7 @@ const Seetings = () => {
 							onChange={onChangeMethod}
 							allowClear
 						>
-							<Option value="01">University of Scinece, Karachi</Option>
+							<Option value="02">University of Scinece, Karachi</Option>
 						</Select>
 					</Form.Item>
 

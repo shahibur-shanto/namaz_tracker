@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { Col, Row } from "antd";
 import Checkbox from "antd/es/checkbox";
+import { useDateContext } from "@/app/Context/store";
 
 interface Waqt {
 	Fajr: string;
@@ -18,31 +19,28 @@ interface Waqt {
 }
 const Today = () => {
 	const [data, setData] = useState<Waqt[] | null>(null);
+	const { selectedDate } = useDateContext();
 
 	useEffect(() => {
+		const currentDayOfMonth = selectedDate.getDate();
 		const fetchData = async () => {
 			try {
 				const getUserData = localStorage.getItem("userData");
 
 				if (getUserData) {
 					const userData = JSON.parse(getUserData);
-					const { city, method } = userData;
+					const { city, method, country } = userData;
 					const prayerTime = await fetch(
-						`https://api.aladhan.com/v1/calendarByCity/2023/11?city=${city}&country=Bangladesh&method=${method}`
+						`https://api.aladhan.com/v1/calendarByCity/2023/11?city=${city}&country=${country}&method=${method}`
 					);
 					const prayer = await prayerTime.json();
-					localStorage.setItem(
-						"prayerTime",
-						JSON.stringify(prayer.data[27].timings)
-					);
-					// console.log(prayer.data[27].timings);
+					localStorage.setItem("prayerTime", JSON.stringify(prayer.data));
 				}
 				const storedData = localStorage.getItem("prayerTime");
 
-				if (storedData) {
+				if (storedData && selectedDate !== undefined) {
 					const newData = JSON.parse(storedData);
-					console.log(newData);
-					setData(newData);
+					setData(newData[currentDayOfMonth - 1]?.timings);
 				} else {
 					console.log("No data found in local storage.");
 				}
@@ -52,10 +50,9 @@ const Today = () => {
 		};
 
 		fetchData(); // Call the function to fetch data when the component mounts or whenever needed
-	}, []);
+	}, [selectedDate]);
 
 	const Header = ["Waqt", "Time", "Action"];
-
 	const styles: React.CSSProperties = {
 		display: "flex",
 		flexDirection: "column",

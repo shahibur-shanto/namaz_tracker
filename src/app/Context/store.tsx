@@ -1,42 +1,42 @@
-// "use client";
+"use client";
 
-// import {
-// 	createContext,
-// 	useContext,
-// 	Dispatch,
-// 	SetStateAction,
-// 	useState,
-//     use,
-// } from "react";
-
-// type DataType = {
-// 	firstName: string;
-// };
-
-// interface ContextProps {
-// 	userId: string;
-// 	setUserId: Dispatch<SetStateAction<string>>;
-// 	data: DataType[];
-// 	setData: Dispatch<SetStateAction<DataType[]>>;
-// }
-
-// const GlobalContext = createContext<ContextProps>({
-// 	userId: "",
-// 	setUserId: (): string => "",
-// 	data: [],
-// 	setData: (): DataType[] => [],
-// });
+import React, {
+	createContext,
+	useContext,
+	Dispatch,
+	SetStateAction,
+	useState,
+} from "react";
 
 
-// export const GlobalContextProvides = ({ children }) => {
-//     const [userId, setUserId] = useState('');
-//     const [data, setData] = useState<[] | DataType[]>([]); 
+interface DateContexProps {
+	selectedDate: Date;
+	setSelectedDate: Dispatch<SetStateAction<Date>>;
+}
 
-//     return (
-//         <GlobalContext.Provider value={{userId,setUserId,data,setData}}>
-//             {children}
-//         </GlobalContext.Provider>)
 
-// }
+const DateContext = createContext<DateContexProps | undefined>(undefined);
 
-// export const useGlobalContext = () => useContext(GlobalContext);
+
+export const DateProviders: React.FC<{ children: React.ReactNode }> = ({
+	children,
+}) => {
+	const [selectedDate, setSelectedDate] = useState(new Date());
+	return (
+		<DateContext.Provider value={{ selectedDate, setSelectedDate }}>
+			{children}
+		</DateContext.Provider>
+	);
+};
+
+
+export const useDateContext = () => {
+    const context = useContext(DateContext)
+
+    if (!context) {
+        throw new Error("useDateContext must be use within a Data Provider")
+    }
+    return context
+}
+
+
