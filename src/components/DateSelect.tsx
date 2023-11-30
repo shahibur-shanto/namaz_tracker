@@ -3,9 +3,15 @@ import React, { useState, useEffect } from "react";
 import { Flex } from "antd";
 import { FaArrowLeft, FaArrowRight } from "react-icons/fa";
 import { useDateContext } from "@/app/Context/store";
+import Paragraph from "antd/es/skeleton/Paragraph";
 
 const boxStyle: React.CSSProperties = {
 	width: "100%",
+};
+
+const paragraphStyle: React.CSSProperties = {
+	fontSize: "20px",
+	fontWeight: "bold",
 };
 
 const justify = "center";
@@ -48,13 +54,13 @@ const DateSelect = () => {
 			<Flex style={boxStyle} justify={justify} align={alignItems}>
 				<div
 					style={{
-						marginRight: "20px",
+						marginRight: "40px",
 						display: "flex",
 						alignItems: "center",
 						justifyContent: "center",
 					}}
 				>
-					<p onClick={updateDateBackward}>
+					<p style={paragraphStyle} onClick={updateDateBackward}>
 						<FaArrowLeft />
 					</p>
 				</div>
@@ -65,18 +71,18 @@ const DateSelect = () => {
 						justifyContent: "center",
 					}}
 				>
-					<p>Today: {formatDate(selectedDate)}</p>
+					<p style={paragraphStyle}>{formatDate(selectedDate)}</p>
 				</div>
 
 				<div
 					style={{
-						marginLeft: "20px",
+						marginLeft: "40px",
 						display: "flex",
 						alignItems: "center",
 						justifyContent: "center",
 					}}
 				>
-					<p onClick={updateDateForward}>
+					<p style={paragraphStyle} onClick={updateDateForward}>
 						<FaArrowRight />
 					</p>
 				</div>

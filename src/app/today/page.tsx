@@ -8,11 +8,11 @@ const TodayPage = () => {
 	return (
 		<>
 			<DateProviders>
-			<Header />
-			<MenuBar />
-			<DateSelect/>
+				<Header />
+				<MenuBar />
+				<DateSelect />
 				<Today />
-				</DateProviders>
+			</DateProviders>
 		</>
 	);
 };

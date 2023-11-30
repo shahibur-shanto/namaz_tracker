@@ -8,35 +8,34 @@ import React, {
 	useState,
 } from "react";
 
-
 interface DateContexProps {
 	selectedDate: Date;
 	setSelectedDate: Dispatch<SetStateAction<Date>>;
 }
-
-
 const DateContext = createContext<DateContexProps | undefined>(undefined);
-
 
 export const DateProviders: React.FC<{ children: React.ReactNode }> = ({
 	children,
 }) => {
 	const [selectedDate, setSelectedDate] = useState(new Date());
+
 	return (
-		<DateContext.Provider value={{ selectedDate, setSelectedDate }}>
+		<DateContext.Provider
+			value={{
+				selectedDate,
+				setSelectedDate,
+			}}
+		>
 			{children}
 		</DateContext.Provider>
 	);
 };
 
-
 export const useDateContext = () => {
-    const context = useContext(DateContext)
+	const context = useContext(DateContext);
 
-    if (!context) {
-        throw new Error("useDateContext must be use within a Data Provider")
-    }
-    return context
-}
-
-
+	if (!context) {
+		throw new Error("useDateContext must be use within a Data Provider");
+	}
+	return context;
+};

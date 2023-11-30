@@ -22,11 +22,8 @@ interface Waqt {
 	[key: string]: any;
 }
 
-const Today = () => {
-	const [data, setData] = useState<Record<
-		string,
-		{ time: string; isComplete: boolean; isLateComplete: boolean }
-	> | null>(null);
+const AnotherToday = () => {
+	const [data, setData] = useState<Record<string, { time: string; isComplete: boolean; isLateComplete: boolean }> | null>(null);
 	const { selectedDate } = useDateContext();
 	const [dateString, setDateString] = useState<string>("");
 
@@ -147,71 +144,65 @@ const Today = () => {
 
 				{/* Content Cards */}
 				{data &&
-					Object.entries(data).map(
-						([prayerKey, value]: [string, any], index: number) => (
-							<React.Fragment key={index}>
-								<Col
-									span={5}
-									style={{
-										...styles,
-										backgroundColor: index % 2 === 0 ? "#f0f0f0" : "#d6c5c5",
-									}}
-								>
-									{prayerKey}
-								</Col>
-								<Col
-									span={5}
-									style={{
-										...styles,
-										backgroundColor: index % 2 === 0 ? "#f0f0f0" : "#d6c5c5",
-									}}
-								>
-									{String(value.time)}
-								</Col>
-								<Col
-									span={5}
-									style={{
-										...styles,
-										backgroundColor: index % 2 === 0 ? "#f0f0f0" : "#d6c5c5",
-									}}
-								>
-									<Checkbox
-										disabled={
-											data[prayerKey].isComplete ||
-											data[prayerKey].isLateComplete
-										}
-										name="isComplete"
-										checked={data[prayerKey].isComplete}
-										onChange={() =>
-											handleCheckboxChange(prayerKey, "isComplete")
-										}
-									/>
-								</Col>
-								<Col
-									span={5}
-									style={{
-										...styles,
-										backgroundColor: index % 2 === 0 ? "#f0f0f0" : "#d6c5c5",
-									}}
-								>
-									<Checkbox
-										disabled={
-											data[prayerKey].isLateComplete ||
-											data[prayerKey].isComplete
-										}
-										name="isLateComplete"
-										checked={data[prayerKey].isLateComplete}
-										onChange={() =>
-											handleCheckboxChange(prayerKey, "isLateComplete")
-										}
-									/>
-								</Col>
-							</React.Fragment>
-						)
-					)}
+					Object.entries(data).map(([prayerKey, value]: [string, any], index: number) => (
+						<React.Fragment key={index}>
+							<Col
+								span={5}
+								style={{
+									...styles,
+									backgroundColor: index % 2 === 0 ? "#f0f0f0" : "#d6c5c5",
+								}}
+							>
+								{prayerKey}
+							</Col>
+							<Col
+								span={5}
+								style={{
+									...styles,
+									backgroundColor: index % 2 === 0 ? "#f0f0f0" : "#d6c5c5",
+								}}
+							>
+								{String(value.time)}
+							</Col>
+							<Col
+								span={5}
+								style={{
+									...styles,
+									backgroundColor: index % 2 === 0 ? "#f0f0f0" : "#d6c5c5",
+								}}
+							>
+								<Checkbox
+									disabled={
+										data[prayerKey].isComplete || data[prayerKey].isLateComplete
+									}
+									name="isComplete"
+									checked={data[prayerKey].isComplete}
+									onChange={() => handleCheckboxChange(prayerKey, "isComplete")}
+								/>
+							</Col>
+							<Col
+								span={5}
+								style={{
+									...styles,
+									backgroundColor: index % 2 === 0 ? "#f0f0f0" : "#d6c5c5",
+								}}
+							>
+								<Checkbox
+									disabled={
+										data[prayerKey].isLateComplete || data[prayerKey].isComplete
+									}
+									name="isLateComplete"
+									checked={data[prayerKey].isLateComplete}
+									onChange={() =>
+										handleCheckboxChange(prayerKey, "isLateComplete")
+									}
+								/>
+							</Col>
+						</React.Fragment>
+					))}
 			</Row>
 		</div>
 	);
 };
 
-export default Today;
+export default AnotherToday;

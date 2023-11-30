@@ -20,13 +20,6 @@ const tailLayout = {
 		xs: { offset: 12, span: 12 },
 	},
 };
-async function getData() {
-	const prayerTime = await fetch(
-		"https://api.aladhan.com/v1/calendarByCity/2023/11?city=Noakhali&country=Bangladesh&method=2"
-	);
-	const prayer = await prayerTime.json();
-	return prayer.data;
-}
 
 const Seetings = () => {
 	const router = useRouter();
@@ -171,7 +164,9 @@ const Seetings = () => {
 							onChange={onChangeMethod}
 							allowClear
 						>
-							<Option value="02">University of Scinece, Karachi</Option>
+							<Option value="01">
+								University of Islamic Sciences, Karachi
+							</Option>
 						</Select>
 					</Form.Item>
 
