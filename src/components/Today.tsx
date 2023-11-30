@@ -3,24 +3,7 @@ import React, { useEffect, useState } from "react";
 import { Col, Row } from "antd";
 import Checkbox from "antd/es/checkbox";
 import { useDateContext } from "@/app/Context/store";
-
-interface Waqt {
-	Fajr: string;
-	Sunrise: string;
-	Dhuhr: string;
-	Asr: string;
-	Sunset: string;
-	Maghrib: string;
-	Isha: string;
-	Imsak: string;
-	Midnight: string;
-	Firstthird: string;
-	Lastthird: string;
-	isComplete?: boolean;
-	time?: string;
-	key?: string;
-	[key: string]: any;
-}
+import "./today.css";
 
 const Today = () => {
 	const [data, setData] = useState<Record<
@@ -108,7 +91,7 @@ const Today = () => {
 		flexDirection: "column",
 		alignItems: "center",
 		justifyContent: "center",
-		marginTop: "20px",
+
 		marginLeft: "8px",
 		marginRight: "8px",
 		height: "50px",
@@ -116,15 +99,15 @@ const Today = () => {
 
 	return (
 		<div style={{ backgroundColor: "#ebe4e4" }}>
-			<Row justify="center" align="middle" gutter={16}>
+			<Row justify="center" align="middle" gutter={[16, 16]}>
 				{/* Title Card */}
 				{Header.map((item, index) => (
 					<React.Fragment key={index}>
 						<Col
 							span={5}
-							xs={4}
-							sm={12}
-							md={6}
+							xs={5}
+							sm={4}
+							md={5}
 							lg={5}
 							style={{
 								display: "flex",
@@ -134,13 +117,13 @@ const Today = () => {
 								fontSize: "20px",
 								fontWeight: "bold",
 								backgroundColor: "#adaaaa",
-								height: "60px",
+								height: "50px",
 								marginLeft: "8px",
 								marginRight: "8px",
 								marginTop: "8px",
 							}}
 						>
-							{item}
+							<p className="your-title-class">{item}</p>
 						</Col>
 					</React.Fragment>
 				))}
