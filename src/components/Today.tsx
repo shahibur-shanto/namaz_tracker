@@ -15,9 +15,11 @@ const Today = () => {
 
 	useEffect(() => {
 		const currentDayOfMonth = selectedDate.getDate();
+		const formattedDayOfMonth =currentDayOfMonth < 10 ? `0${currentDayOfMonth}` : currentDayOfMonth;
 		const currentMonth = selectedDate.getMonth() + 1;
 		const currentYear = selectedDate.getFullYear();
-		const dateString = `${currentDayOfMonth}-${currentMonth}-${currentYear}`;
+		const dateString = `${formattedDayOfMonth}-${currentMonth}-${currentYear}`;
+		console.log(formattedDayOfMonth);
 		setDateString(dateString);
 		const fetchData = async () => {
 			try {
@@ -99,7 +101,7 @@ const Today = () => {
 
 	return (
 		<div style={{ backgroundColor: "#ebe4e4" }}>
-			<Row justify="center" align="middle" gutter={[16, 16]}>
+			<Row justify="center" align="middle" gutter={16}>
 				{/* Title Card */}
 				{Header.map((item, index) => (
 					<React.Fragment key={index}>
