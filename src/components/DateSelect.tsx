@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import { Flex } from "antd";
 import { FaArrowLeft, FaArrowRight } from "react-icons/fa";
 import { useDateContext } from "@/app/Context/store";
-import Paragraph from "antd/es/skeleton/Paragraph";
+
 
 const boxStyle: React.CSSProperties = {
 	width: "100%",

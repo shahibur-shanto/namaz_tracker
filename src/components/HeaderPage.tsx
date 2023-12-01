@@ -19,7 +19,7 @@ const body: React.CSSProperties = {
 const justifyOptions = ["center"];
 const alignOptions = ["flex-start"];
 
-const Header = () => {
+const HeaderPage = () => {
 	const [justify, setJustify] = React.useState<FlexProps["justify"]>(
 		justifyOptions[0]
 	);
@@ -42,4 +42,4 @@ const Header = () => {
 		</Flex>
 	);
 };
-export default Header;
+export default HeaderPage;

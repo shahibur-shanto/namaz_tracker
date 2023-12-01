@@ -13,13 +13,67 @@ const Today = () => {
 	const { selectedDate } = useDateContext();
 	const [dateString, setDateString] = useState<string>("");
 
+	const getCurrentDate = () => {
+		const today = new Date();
+		return today;
+	};
+
+	const formatDate = (date: Date): string => {
+		return date.toLocaleDateString("en-GB", {
+			day: "2-digit",
+			month: "2-digit",
+			year: "numeric",
+			hour: "2-digit",
+			minute: "2-digit",
+		});
+	};
+
+	function removeOffsetFromWaqtTime(waqtTime: string) {
+		return waqtTime.replace(/\s*\(\+\d+\)/, ""); // Remove "(+06)" or similar pattern
+	}
+
+	const isFutureWaqt = (presentSelectedDate, waqtTime) => {
+		const currentDateTime = getCurrentDate();
+		// const presentSelectedDateTime = new Date(presentSelectedDate);
+
+		// Extract date components without time
+		const currentDate = new Date(
+			currentDateTime.getFullYear(),
+			currentDateTime.getMonth(),
+			currentDateTime.getDate()
+		);
+		const selectedDate = new Date(
+			presentSelectedDate.getFullYear(),
+			presentSelectedDate.getMonth(),
+			presentSelectedDate.getDate()
+		);
+
+		if (currentDate < selectedDate) {
+			return true;
+		} else if (currentDate > selectedDate) {
+			return false;
+		} else {
+			const currentHour = currentDateTime.getHours();
+			const currentMinute = currentDateTime.getMinutes();
+			const [waqtHour, waqtMinutes] = removeOffsetFromWaqtTime(waqtTime)
+				.split(":")
+				.map(Number);
+
+			if (currentHour * 60 + currentMinute < waqtHour * 60 + waqtMinutes) {
+				return true;
+			} else {
+				return false;
+			}
+		}
+	};
+
 	useEffect(() => {
 		const currentDayOfMonth = selectedDate.getDate();
-		const formattedDayOfMonth =currentDayOfMonth < 10 ? `0${currentDayOfMonth}` : currentDayOfMonth;
+		const formattedDayOfMonth =
+			currentDayOfMonth < 10 ? `0${currentDayOfMonth}` : currentDayOfMonth;
 		const currentMonth = selectedDate.getMonth() + 1;
 		const currentYear = selectedDate.getFullYear();
 		const dateString = `${formattedDayOfMonth}-${currentMonth}-${currentYear}`;
-		console.log(formattedDayOfMonth);
 		setDateString(dateString);
 		const fetchData = async () => {
 			try {
@@ -88,6 +142,16 @@ const Today = () => {
 	};
 
 	const Header = ["Waqt", "Time", "Action", "Late Complete"];
+	const WaqtName = [
+		"Fajr",
+		"Sunrise",
+		"Dhuhr",
+		"Asr",
+		"Sunset",
+		"Maghrib",
+		"Isha",
+	];
+
 	const styles: React.CSSProperties = {
 		display: "flex",
 		flexDirection: "column",
@@ -133,66 +197,118 @@ const Today = () => {
 				{/* Content Cards */}
 				{data &&
 					Object.entries(data).map(
-						([prayerKey, value]: [string, any], index: number) => (
-							<React.Fragment key={index}>
-								<Col
-									span={5}
-									style={{
-										...styles,
-										backgroundColor: index % 2 === 0 ? "#f0f0f0" : "#d6c5c5",
-									}}
-								>
-									{prayerKey}
-								</Col>
-								<Col
-									span={5}
-									style={{
-										...styles,
-										backgroundColor: index % 2 === 0 ? "#f0f0f0" : "#d6c5c5",
-									}}
-								>
-									{String(value.time)}
-								</Col>
-								<Col
-									span={5}
-									style={{
-										...styles,
-										backgroundColor: index % 2 === 0 ? "#f0f0f0" : "#d6c5c5",
-									}}
-								>
-									<Checkbox
-										disabled={
-											data[prayerKey].isComplete ||
-											data[prayerKey].isLateComplete
-										}
-										name="isComplete"
-										checked={data[prayerKey].isComplete}
-										onChange={() =>
-											handleCheckboxChange(prayerKey, "isComplete")
-										}
-									/>
-								</Col>
-								<Col
-									span={5}
-									style={{
-										...styles,
-										backgroundColor: index % 2 === 0 ? "#f0f0f0" : "#d6c5c5",
-									}}
-								>
-									<Checkbox
-										disabled={
-											data[prayerKey].isLateComplete ||
-											data[prayerKey].isComplete
-										}
-										name="isLateComplete"
-										checked={data[prayerKey].isLateComplete}
-										onChange={() =>
-											handleCheckboxChange(prayerKey, "isLateComplete")
-										}
-									/>
-								</Col>
-							</React.Fragment>
-						)
+						([prayerKey, value]: [string, any], index: number) => {
+							if (WaqtName.includes(prayerKey)) {
+								const isFuture = isFutureWaqt(selectedDate, value.time);
+								return (
+									<React.Fragment key={index}>
+										<Col
+											span={5}
+											style={{
+												...styles,
+												backgroundColor:
+													index % 2 === 0 ? "#f0f0f0" : "#d6c5c5",
+											}}
+										>
+											{prayerKey}
+										</Col>
+										<Col
+											span={5}
+											style={{
+												...styles,
+												backgroundColor:
+													index % 2 === 0 ? "#f0f0f0" : "#d6c5c5",
+											}}
+										>
+											{(() => {
+												switch (prayerKey) {
+													case "Fajr":
+														return (
+															String(value.time) +
+															" to " +
+															String(data?.Sunrise?.time)
+														);
+													case "Sunrise":
+														return String(data?.Sunrise?.time);
+													case "Dhuhr":
+														return (
+															String(data?.Sunrise?.time) +
+															" to " +
+															String(data?.Asr?.time)
+														);
+													case "Asr":
+														return (
+															String(data?.Asr?.time) +
+															" to " +
+															String(data?.Maghrib?.time)
+														);
+													case "Sunset":
+														return String(data?.Sunset?.time);
+													case "Maghrib":
+														return (
+															String(data?.Maghrib?.time) +
+															" to " +
+															String(data?.Isha?.time)
+														);
+													case "Isha":
+														return (
+															String(data?.Isha?.time) +
+															" to " +
+															String(`12:00 (+06)`)
+														);
+													default:
+														return String(value.time);
+												}
+											})()}
+										</Col>
+										<Col
+											span={5}
+											style={{
+												...styles,
+												backgroundColor:
+													index % 2 === 0 ? "#f0f0f0" : "#d6c5c5",
+											}}
+										>
+											<Checkbox
+												disabled={
+													isFuture ||
+													data[prayerKey].isComplete ||
+													data[prayerKey].isLateComplete
+												}
+												name="isComplete"
+												checked={data[prayerKey].isComplete}
+												onChange={() =>
+													handleCheckboxChange(prayerKey, "isComplete")
+												}
+											/>
+										</Col>
+										<Col
+											span={5}
+											style={{
+												...styles,
+												backgroundColor:
+													index % 2 === 0 ? "#f0f0f0" : "#d6c5c5",
+											}}
+										>
+											<Checkbox
+												disabled={
+													isFuture ||
+													data[prayerKey].isLateComplete ||
+													data[prayerKey].isComplete
+												}
+												name="isLateComplete"
+												checked={data[prayerKey].isLateComplete}
+												onChange={() =>
+													handleCheckboxChange(prayerKey, "isLateComplete")
+												}
+											/>
+										</Col>
+									</React.Fragment>
+								);
+							} else {
+								return null; // Skip rendering for excluded prayers
+							}
+						}
 					)}
 			</Row>
 		</div>
