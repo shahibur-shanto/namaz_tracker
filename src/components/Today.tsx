@@ -32,7 +32,7 @@ const Today = () => {
 		return waqtTime.replace(/\s*\(\+\d+\)/, ""); // Remove "(+06)" or similar pattern
 	}
 
-	const isFutureWaqt = (presentSelectedDate, waqtTime) => {
+	const isFutureWaqt = (presentSelectedDate: Date, waqtTime: string) => {
 		const currentDateTime = getCurrentDate();
 		// const presentSelectedDateTime = new Date(presentSelectedDate);
 
