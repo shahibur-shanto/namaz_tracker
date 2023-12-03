@@ -273,7 +273,9 @@ const Today = () => {
 												disabled={
 													isFuture ||
 													data[prayerKey].isComplete ||
-													data[prayerKey].isLateComplete
+													data[prayerKey].isLateComplete ||
+													prayerKey === "Sunset" ||
+													prayerKey == "Sunrise"
 												}
 												name="isComplete"
 												checked={data[prayerKey].isComplete}
@@ -294,7 +296,9 @@ const Today = () => {
 												disabled={
 													isFuture ||
 													data[prayerKey].isLateComplete ||
-													data[prayerKey].isComplete
+													data[prayerKey].isComplete ||
+													prayerKey === "Sunset" ||
+													prayerKey == "Sunrise"
 												}
 												name="isLateComplete"
 												checked={data[prayerKey].isLateComplete}

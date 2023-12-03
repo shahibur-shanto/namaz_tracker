@@ -10,8 +10,10 @@
   },
   "dependencies": {
     "@ant-design/icons": "^5.2.6",
+    "@types/chart.js": "^2.9.41",
     "antd": "^5.11.4",
     "chart.js": "^4.4.0",
+    "chartjs-adapter-date-fns": "^3.0.0",
     "country-state-city": "^3.2.1",
     "next": "14.0.3",
     "react": "^18",
