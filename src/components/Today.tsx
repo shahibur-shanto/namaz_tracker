@@ -34,7 +34,6 @@ const Today = () => {
 
 	const isFutureWaqt = (presentSelectedDate: Date, waqtTime: string) => {
 		const currentDateTime = getCurrentDate();
-		// const presentSelectedDateTime = new Date(presentSelectedDate);
 
 		// Extract date components without time
 		const currentDate = new Date(
@@ -70,7 +69,7 @@ const Today = () => {
 	useEffect(() => {
 		const currentDayOfMonth = selectedDate.getDate();
 		const formattedDayOfMonth =
-			currentDayOfMonth < 10 ? `0${currentDayOfMonth}` : currentDayOfMonth;
+		currentDayOfMonth < 10 ? `0${currentDayOfMonth}` : currentDayOfMonth;
 		const currentMonth = selectedDate.getMonth() + 1;
 		const currentYear = selectedDate.getFullYear();
 		const dateString = `${formattedDayOfMonth}-${currentMonth}-${currentYear}`;
