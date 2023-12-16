@@ -134,6 +134,7 @@ const Seetings = () => {
 			if (isDataChanged) {
 				setRegTime(getCurrentDate());
 				values.regTime = regTime;
+				values.name = values.name || currentUser?.name || "";
 				localStorage.setItem("userData", JSON.stringify(values));
 				const todaysData = localStorage.getItem(regTime.format("DD-MM-YYYY"));
 				if (todaysData) {
@@ -169,11 +170,16 @@ const Seetings = () => {
 						marginTop: "20px",
 					}}
 				>
-					<Form.Item name="name" label="Name" rules={[{ required: true }]}>
+					<Form.Item
+						name="name"
+						label="Name"
+						rules={[{ required: currentUser ? false : true }]}
+					>
 						<Input
 							placeholder={
 								currentUser ? currentUser?.name : "Please enter your name"
 							}
+							disabled={currentUser ? true : false}
 						/>
 					</Form.Item>
 					<Form.Item
@@ -182,7 +188,7 @@ const Seetings = () => {
 						rules={[{ required: true }]}
 					>
 						<Select
-							placeholder="Select your City"
+							placeholder="Select your Country"
 							onChange={onChangeCountry}
 							allowClear
 						>
