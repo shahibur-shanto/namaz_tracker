@@ -75,7 +75,8 @@ const Today = () => {
 										JSON.stringify(previousData)
 									);
 								}
-							} else if (!localStorage.getItem(dateString)) {
+							}
+							if (!localStorage.getItem(dateString)) {
 								localStorage.setItem(dateString, value);
 							}
 						}
