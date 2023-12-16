@@ -4,6 +4,8 @@ import { Col, Row } from "antd";
 import Checkbox from "antd/es/checkbox";
 import { useDateContext } from "@/app/Context/store";
 import "./today.css";
+import { getCurrentDate } from "@/app/utility/utility";
+import moment, { Moment } from "moment";
 
 const Today = () => {
 	const [data, setData] = useState<Record<
@@ -13,75 +15,24 @@ const Today = () => {
 	const { selectedDate } = useDateContext();
 	const [dateString, setDateString] = useState<string>("");
 
-	const getCurrentDate = () => {
-		const today = new Date();
-		return today;
+	const isFutureWaqt = (waqtTime: Moment) => {
+		const presentCurrentTime = moment(getCurrentDate());
+
+		return waqtTime.isAfter(presentCurrentTime);
 	};
-
-	const formatDate = (date: Date): string => {
-		return date.toLocaleDateString("en-GB", {
-			day: "2-digit",
-			month: "2-digit",
-			year: "numeric",
-			hour: "2-digit",
-			minute: "2-digit",
-		});
-	};
-
-	function removeOffsetFromWaqtTime(waqtTime: string) {
-		return waqtTime.replace(/\s*\(\+\d+\)/, ""); // Remove "(+06)" or similar pattern
-	}
-
-	const isFutureWaqt = (presentSelectedDate: Date, waqtTime: string) => {
-		const currentDateTime = getCurrentDate();
-
-		// Extract date components without time
-		const currentDate = new Date(
-			currentDateTime.getFullYear(),
-			currentDateTime.getMonth(),
-			currentDateTime.getDate()
-		);
-		const selectedDate = new Date(
-			presentSelectedDate.getFullYear(),
-			presentSelectedDate.getMonth(),
-			presentSelectedDate.getDate()
-		);
-
-		if (currentDate < selectedDate) {
-			return true;
-		} else if (currentDate > selectedDate) {
-			return false;
-		} else {
-			const currentHour = currentDateTime.getHours();
-			const currentMinute = currentDateTime.getMinutes();
-			const [waqtHour, waqtMinutes] = removeOffsetFromWaqtTime(waqtTime)
-				.split(":")
-				.map(Number);
-
-			if (currentHour * 60 + currentMinute < waqtHour * 60 + waqtMinutes) {
-				return true;
-			} else {
-				return false;
-			}
-		}
-	};
-
 	useEffect(() => {
-		const currentDayOfMonth = selectedDate.getDate();
-		const formattedDayOfMonth =
-		currentDayOfMonth < 10 ? `0${currentDayOfMonth}` : currentDayOfMonth;
-		const currentMonth = selectedDate.getMonth() + 1;
-		const currentYear = selectedDate.getFullYear();
-		const dateString = `${formattedDayOfMonth}-${currentMonth}-${currentYear}`;
-		setDateString(dateString);
+		const currentYear = selectedDate.format("YYYY");
+		const currentMonth = selectedDate.format("MM");
+		setDateString(moment(selectedDate).format("DD-MM-YYYY"));
 		const fetchData = async () => {
 			try {
 				const getUserData = localStorage.getItem("userData");
 				if (getUserData) {
 					const userData = JSON.parse(getUserData);
-					const { city, method, country } = userData;
+					const { city, method, country, regTime } = userData;
+
 					const prayerTime = await fetch(
-						`https://api.aladhan.com/v1/calendarByCity/${currentYear}/${currentMonth}?city=${city}&country=${country}&method=${method}`
+						`https://api.aladhan.com/v1/calendarByCity/${currentYear}/${currentMonth}?city=${city}&country=${country}&method=${method}&iso8601=true`
 					);
 					const prayer = await prayerTime.json();
 
@@ -103,18 +54,34 @@ const Today = () => {
 							item.timings = newTimings as unknown as Record<string, string>;
 						});
 					});
+
 					prayer.data.forEach(
-						(element: { date: { gregorian: { date: any } } }) => {
+						(element: { timings: any; date: { gregorian: { date: any } } }) => {
 							const dateString = element.date.gregorian.date;
 							const value = JSON.stringify(element);
-							if (!localStorage.getItem(dateString)) {
+
+							if (dateString === moment(regTime).format("DD-MM-YYYY")) {
+								const previousDataString = localStorage.getItem("previousData");
+								if (previousDataString) {
+									const previousData = JSON.parse(previousDataString);
+									Object.keys(JSON.parse(value).timings).forEach((waqt) => {
+										if (previousData.timings[waqt]) {
+											previousData.timings[waqt].time =
+												JSON.parse(value).timings[waqt].time;
+										}
+									});
+									localStorage.setItem(
+										dateString,
+										JSON.stringify(previousData)
+									);
+								}
+							} else if (!localStorage.getItem(dateString)) {
 								localStorage.setItem(dateString, value);
 							}
 						}
 					);
 				}
 				const storedData = localStorage.getItem(dateString);
-
 				if (storedData && selectedDate !== undefined) {
 					const newData = JSON.parse(storedData);
 					setData(newData?.timings);
@@ -127,7 +94,7 @@ const Today = () => {
 		};
 
 		fetchData(); // Call the function to fetch data when the component mounts or whenever needed
-	}, [selectedDate]);
+	}, [selectedDate, dateString]);
 
 	const handleCheckboxChange = (prayerKey: string, property: string) => {
 		const fetchData = localStorage.getItem(dateString);
@@ -198,7 +165,8 @@ const Today = () => {
 					Object.entries(data).map(
 						([prayerKey, value]: [string, any], index: number) => {
 							if (WaqtName.includes(prayerKey)) {
-								const isFuture = isFutureWaqt(selectedDate, value.time);
+								const isFuture = isFutureWaqt(moment(value.time));
+
 								return (
 									<React.Fragment key={index}>
 										<Col
@@ -223,37 +191,39 @@ const Today = () => {
 												switch (prayerKey) {
 													case "Fajr":
 														return (
-															String(value.time) +
-															" to " +
-															String(data?.Sunrise?.time)
+															moment(value.time).format("HH:mm A") +
+															"--" +
+															moment(data?.Sunrise?.time).format("HH:mm A")
 														);
 													case "Sunrise":
-														return String(data?.Sunrise?.time);
+														return moment(data?.Sunrise?.time).format(
+															"HH:mm A"
+														);
 													case "Dhuhr":
 														return (
-															String(data?.Sunrise?.time) +
-															" to " +
-															String(data?.Asr?.time)
+															moment(data?.Dhuhr?.time).format("HH:mm A") +
+															"--" +
+															moment(data?.Asr?.time).format("HH:mm A")
 														);
 													case "Asr":
 														return (
-															String(data?.Asr?.time) +
-															" to " +
-															String(data?.Maghrib?.time)
+															moment(data?.Asr?.time).format("HH:mm A") +
+															"--" +
+															moment(data?.Maghrib?.time).format("HH:mm A")
 														);
 													case "Sunset":
-														return String(data?.Sunset?.time);
+														return moment(data?.Sunset?.time).format("HH:mm A");
 													case "Maghrib":
 														return (
-															String(data?.Maghrib?.time) +
-															" to " +
-															String(data?.Isha?.time)
+															moment(data?.Maghrib?.time).format("HH:mm A") +
+															"--" +
+															moment(data?.Isha?.time).format("HH:mm A")
 														);
 													case "Isha":
 														return (
-															String(data?.Isha?.time) +
-															" to " +
-															String(`12:00 (+06)`)
+															moment(data?.Isha?.time).format("HH:mm A") +
+															"--" +
+															String(`00:00`)
 														);
 													default:
 														return String(value.time);

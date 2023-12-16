@@ -3,44 +3,36 @@ import React, { useEffect, useState } from "react";
 import { Col, Row } from "antd";
 import Checkbox from "antd/es/checkbox";
 import { useDateContext } from "@/app/Context/store";
+import "./today.css";
+import { getCurrentDate } from "@/app/utility/utility";
+import moment, { Moment } from "moment";
 
-interface Waqt {
-	Fajr: string;
-	Sunrise: string;
-	Dhuhr: string;
-	Asr: string;
-	Sunset: string;
-	Maghrib: string;
-	Isha: string;
-	Imsak: string;
-	Midnight: string;
-	Firstthird: string;
-	Lastthird: string;
-	isComplete?: boolean;
-	time?: string;
-	key?: string;
-	[key: string]: any;
-}
-
-const AnotherToday = () => {
-	const [data, setData] = useState<Record<string, { time: string; isComplete: boolean; isLateComplete: boolean }> | null>(null);
+const Today = () => {
+	const [data, setData] = useState<Record<
+		string,
+		{ time: string; isComplete: boolean; isLateComplete: boolean }
+	> | null>(null);
 	const { selectedDate } = useDateContext();
 	const [dateString, setDateString] = useState<string>("");
 
+	const isFutureWaqt = (waqtTime: Moment) => {
+		const presentCurrentTime = moment(getCurrentDate());
+
+		return waqtTime.isAfter(presentCurrentTime);
+	};
 	useEffect(() => {
-		const currentDayOfMonth = selectedDate.getDate();
-		const currentMonth = selectedDate.getMonth() + 1;
-		const currentYear = selectedDate.getFullYear();
-		const dateString = `${currentDayOfMonth}-${currentMonth}-${currentYear}`;
-		setDateString(dateString);
+		const currentYear = selectedDate.format("YYYY");
+		const currentMonth = selectedDate.format("MM");
+		setDateString(moment(selectedDate).format("DD-MM-YYYY"));
 		const fetchData = async () => {
 			try {
 				const getUserData = localStorage.getItem("userData");
 				if (getUserData) {
 					const userData = JSON.parse(getUserData);
-					const { city, method, country } = userData;
+					const { city, method, country, regTime } = userData;
+
 					const prayerTime = await fetch(
-						`https://api.aladhan.com/v1/calendarByCity/${currentYear}/${currentMonth}?city=${city}&country=${country}&method=${method}`
+						`https://api.aladhan.com/v1/calendarByCity/${currentYear}/${currentMonth}?city=${city}&country=${country}&method=${method}&iso8601=true`
 					);
 					const prayer = await prayerTime.json();
 
@@ -62,9 +54,11 @@ const AnotherToday = () => {
 							item.timings = newTimings as unknown as Record<string, string>;
 						});
 					});
+
 					prayer.data.forEach(
 						(element: { date: { gregorian: { date: any } } }) => {
 							const dateString = element.date.gregorian.date;
+
 							const value = JSON.stringify(element);
 							if (!localStorage.getItem(dateString)) {
 								localStorage.setItem(dateString, value);
@@ -86,7 +80,7 @@ const AnotherToday = () => {
 		};
 
 		fetchData(); // Call the function to fetch data when the component mounts or whenever needed
-	}, [selectedDate]);
+	}, [selectedDate, dateString]);
 
 	const handleCheckboxChange = (prayerKey: string, property: string) => {
 		const fetchData = localStorage.getItem(dateString);
@@ -100,12 +94,22 @@ const AnotherToday = () => {
 	};
 
 	const Header = ["Waqt", "Time", "Action", "Late Complete"];
+	const WaqtName = [
+		"Fajr",
+		"Sunrise",
+		"Dhuhr",
+		"Asr",
+		"Sunset",
+		"Maghrib",
+		"Isha",
+	];
+
 	const styles: React.CSSProperties = {
 		display: "flex",
 		flexDirection: "column",
 		alignItems: "center",
 		justifyContent: "center",
-		marginTop: "20px",
+
 		marginLeft: "8px",
 		marginRight: "8px",
 		height: "50px",
@@ -119,9 +123,9 @@ const AnotherToday = () => {
 					<React.Fragment key={index}>
 						<Col
 							span={5}
-							xs={4}
-							sm={12}
-							md={6}
+							xs={5}
+							sm={4}
+							md={5}
 							lg={5}
 							style={{
 								display: "flex",
@@ -131,78 +135,141 @@ const AnotherToday = () => {
 								fontSize: "20px",
 								fontWeight: "bold",
 								backgroundColor: "#adaaaa",
-								height: "60px",
+								height: "50px",
 								marginLeft: "8px",
 								marginRight: "8px",
 								marginTop: "8px",
 							}}
 						>
-							{item}
+							<p className="your-title-class">{item}</p>
 						</Col>
 					</React.Fragment>
 				))}
 
 				{/* Content Cards */}
 				{data &&
-					Object.entries(data).map(([prayerKey, value]: [string, any], index: number) => (
-						<React.Fragment key={index}>
-							<Col
-								span={5}
-								style={{
-									...styles,
-									backgroundColor: index % 2 === 0 ? "#f0f0f0" : "#d6c5c5",
-								}}
-							>
-								{prayerKey}
-							</Col>
-							<Col
-								span={5}
-								style={{
-									...styles,
-									backgroundColor: index % 2 === 0 ? "#f0f0f0" : "#d6c5c5",
-								}}
-							>
-								{String(value.time)}
-							</Col>
-							<Col
-								span={5}
-								style={{
-									...styles,
-									backgroundColor: index % 2 === 0 ? "#f0f0f0" : "#d6c5c5",
-								}}
-							>
-								<Checkbox
-									disabled={
-										data[prayerKey].isComplete || data[prayerKey].isLateComplete
-									}
-									name="isComplete"
-									checked={data[prayerKey].isComplete}
-									onChange={() => handleCheckboxChange(prayerKey, "isComplete")}
-								/>
-							</Col>
-							<Col
-								span={5}
-								style={{
-									...styles,
-									backgroundColor: index % 2 === 0 ? "#f0f0f0" : "#d6c5c5",
-								}}
-							>
-								<Checkbox
-									disabled={
-										data[prayerKey].isLateComplete || data[prayerKey].isComplete
-									}
-									name="isLateComplete"
-									checked={data[prayerKey].isLateComplete}
-									onChange={() =>
-										handleCheckboxChange(prayerKey, "isLateComplete")
-									}
-								/>
-							</Col>
-						</React.Fragment>
-					))}
+					Object.entries(data).map(
+						([prayerKey, value]: [string, any], index: number) => {
+							if (WaqtName.includes(prayerKey)) {
+								const isFuture = isFutureWaqt(moment(value.time));
+
+								return (
+									<React.Fragment key={index}>
+										<Col
+											span={5}
+											style={{
+												...styles,
+												backgroundColor:
+													index % 2 === 0 ? "#f0f0f0" : "#d6c5c5",
+											}}
+										>
+											{prayerKey}
+										</Col>
+										<Col
+											span={5}
+											style={{
+												...styles,
+												backgroundColor:
+													index % 2 === 0 ? "#f0f0f0" : "#d6c5c5",
+											}}
+										>
+											{(() => {
+												switch (prayerKey) {
+													case "Fajr":
+														return (
+															moment(value.time).format("HH:mm") +
+															" to " +
+															moment(data?.Sunrise?.time).format("HH:mm")
+														);
+													case "Sunrise":
+														return moment(data?.Sunrise?.time).format("HH:mm");
+													case "Dhuhr":
+														return (
+															moment(data?.Sunrise?.time).format("HH:mm") +
+															" to " +
+															moment(data?.Asr?.time).format("HH:mm")
+														);
+													case "Asr":
+														return (
+															moment(data?.Asr?.time).format("HH:mm") +
+															" to " +
+															moment(data?.Maghrib?.time).format("HH:mm")
+														);
+													case "Sunset":
+														return moment(data?.Sunset?.time).format("HH:mm");
+													case "Maghrib":
+														return (
+															moment(data?.Maghrib?.time).format("HH:mm") +
+															" to " +
+															moment(data?.Isha?.time).format("HH:mm")
+														);
+													case "Isha":
+														return (
+															moment(data?.Isha?.time).format("HH:mm") +
+															" to " +
+															String(`00:00`)
+														);
+													default:
+														return String(value.time);
+												}
+											})()}
+										</Col>
+										<Col
+											span={5}
+											style={{
+												...styles,
+												backgroundColor:
+													index % 2 === 0 ? "#f0f0f0" : "#d6c5c5",
+											}}
+										>
+											<Checkbox
+												disabled={
+													isFuture ||
+													data[prayerKey].isComplete ||
+													data[prayerKey].isLateComplete ||
+													prayerKey === "Sunset" ||
+													prayerKey == "Sunrise"
+												}
+												name="isComplete"
+												checked={data[prayerKey].isComplete}
+												onChange={() =>
+													handleCheckboxChange(prayerKey, "isComplete")
+												}
+											/>
+										</Col>
+										<Col
+											span={5}
+											style={{
+												...styles,
+												backgroundColor:
+													index % 2 === 0 ? "#f0f0f0" : "#d6c5c5",
+											}}
+										>
+											<Checkbox
+												disabled={
+													isFuture ||
+													data[prayerKey].isLateComplete ||
+													data[prayerKey].isComplete ||
+													prayerKey === "Sunset" ||
+													prayerKey == "Sunrise"
+												}
+												name="isLateComplete"
+												checked={data[prayerKey].isLateComplete}
+												onChange={() =>
+													handleCheckboxChange(prayerKey, "isLateComplete")
+												}
+											/>
+										</Col>
+									</React.Fragment>
+								);
+							} else {
+								return null; // Skip rendering for excluded prayers
+							}
+						}
+					)}
 			</Row>
 		</div>
 	);
 };
 
-export default AnotherToday;
+export default Today;

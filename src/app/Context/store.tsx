@@ -1,5 +1,6 @@
 "use client";
 
+import moment, { Moment } from "moment";
 import React, {
 	createContext,
 	useContext,
@@ -8,16 +9,17 @@ import React, {
 	useState,
 } from "react";
 
-interface DateContexProps {
-	selectedDate: Date;
-	setSelectedDate: Dispatch<SetStateAction<Date>>;
+interface DateContextProps {
+	selectedDate: Moment; // Change the type to Moment
+	setSelectedDate: Dispatch<SetStateAction<Moment>>; // Change the type to Moment
 }
-const DateContext = createContext<DateContexProps | undefined>(undefined);
+
+const DateContext = createContext<DateContextProps | undefined>(undefined);
 
 export const DateProviders: React.FC<{ children: React.ReactNode }> = ({
 	children,
 }) => {
-	const [selectedDate, setSelectedDate] = useState(new Date());
+	const [selectedDate, setSelectedDate] = useState<Moment>(moment()); // Initialize with moment()
 
 	return (
 		<DateContext.Provider

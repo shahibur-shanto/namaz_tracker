@@ -3,7 +3,8 @@ import React, { useState, useEffect } from "react";
 import { Flex } from "antd";
 import { FaArrowLeft, FaArrowRight } from "react-icons/fa";
 import { useDateContext } from "@/app/Context/store";
-
+import { getCurrentDate, formatDate } from "@/app/utility/utility";
+import moment from "moment";
 
 const boxStyle: React.CSSProperties = {
 	width: "100%",
@@ -21,31 +22,19 @@ const alignItems = "flex-start";
 const DateSelect = () => {
 	const { selectedDate, setSelectedDate } = useDateContext();
 
-	const getCurrentDate = () => {
-		const today = new Date();
-		return today;
-	};
-
-	const formatDate = (date: Date): string => {
-		return date.toLocaleDateString("en-GB", {
-			day: "2-digit",
-			month: "2-digit",
-			year: "numeric",
-		});
-	};
 	useEffect(() => {
 		setSelectedDate(getCurrentDate());
 	}, [setSelectedDate]);
 
 	const updateDateForward = () => {
-		const newDate = new Date(selectedDate);
-		newDate.setDate(newDate.getDate() + 1);
+		const newDate = moment(selectedDate);
+		newDate.add(1, "day");
 		setSelectedDate(newDate);
 	};
 
 	const updateDateBackward = () => {
-		const newDate = new Date(selectedDate);
-		newDate.setDate(newDate.getDate() - 1);
+		const newDate = moment(selectedDate);
+		newDate.subtract(1, "day");
 		setSelectedDate(newDate);
 	};
 
