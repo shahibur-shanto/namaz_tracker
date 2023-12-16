@@ -1,3 +1,4 @@
+import StyledComponentsRegistry from "@/lib/AntdRegistry";
 import type { Metadata } from "next";
 // import { GlobalContextProvides } from "./Context/store";
 export const metadata: Metadata = {
@@ -13,9 +14,11 @@ export default function RootLayout({
 	return (
 		<html lang="en">
 			<body>
-				{/* <GlobalContextProvides> */}
-				{children}
-				{/* </GlobalContextProvides> */}
+				<StyledComponentsRegistry>
+					{/* <GlobalContextProvides> */}
+					{children}
+					{/* </GlobalContextProvides> */}
+				</StyledComponentsRegistry>
 			</body>
 		</html>
 	);
