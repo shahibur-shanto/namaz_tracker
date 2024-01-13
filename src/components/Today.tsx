@@ -5,7 +5,7 @@ import Checkbox from "antd/es/checkbox";
 import { useDateContext } from "@/app/Context/store";
 import "./today.css";
 import { getCurrentDate } from "@/app/utility/utility";
-import moment, { Moment } from "moment";
+import dayjs, { Dayjs } from "dayjs";
 
 const Today = () => {
 	const [data, setData] = useState<Record<
@@ -15,15 +15,15 @@ const Today = () => {
 	const { selectedDate } = useDateContext();
 	const [dateString, setDateString] = useState<string>("");
 
-	const isFutureWaqt = (waqtTime: Moment) => {
-		const presentCurrentTime = moment(getCurrentDate());
+	const isFutureWaqt = (waqtTime: Dayjs) => {
+		const presentCurrentTime = getCurrentDate();
 
 		return waqtTime.isAfter(presentCurrentTime);
 	};
 	useEffect(() => {
 		const currentYear = selectedDate.format("YYYY");
 		const currentMonth = selectedDate.format("MM");
-		setDateString(moment(selectedDate).format("DD-MM-YYYY"));
+		setDateString(dayjs(selectedDate).format("DD-MM-YYYY"));
 		const fetchData = async () => {
 			try {
 				const getUserData = localStorage.getItem("userData");
@@ -60,7 +60,7 @@ const Today = () => {
 							const dateString = element.date.gregorian.date;
 							const value = JSON.stringify(element);
 
-							if (dateString === moment(regTime).format("DD-MM-YYYY")) {
+							if (dateString === dayjs(regTime).format("DD-MM-YYYY")) {
 								const previousDataString = localStorage.getItem("previousData");
 								if (previousDataString) {
 									const previousData = JSON.parse(previousDataString);
@@ -124,7 +124,6 @@ const Today = () => {
 		flexDirection: "column",
 		alignItems: "center",
 		justifyContent: "center",
-
 		marginLeft: "8px",
 		marginRight: "8px",
 		height: "50px",
@@ -166,7 +165,7 @@ const Today = () => {
 					Object.entries(data).map(
 						([prayerKey, value]: [string, any], index: number) => {
 							if (WaqtName.includes(prayerKey)) {
-								const isFuture = isFutureWaqt(moment(value.time));
+								const isFuture = isFutureWaqt(dayjs(value.time));
 
 								return (
 									<React.Fragment key={index}>
@@ -192,37 +191,35 @@ const Today = () => {
 												switch (prayerKey) {
 													case "Fajr":
 														return (
-															moment(value.time).format("HH:mm A") +
+															dayjs(value.time).format("HH:mm A") +
 															"--" +
-															moment(data?.Sunrise?.time).format("HH:mm A")
+															dayjs(data?.Sunrise?.time).format("HH:mm A")
 														);
 													case "Sunrise":
-														return moment(data?.Sunrise?.time).format(
-															"HH:mm A"
-														);
+														return dayjs(data?.Sunrise?.time).format("HH:mm A");
 													case "Dhuhr":
 														return (
-															moment(data?.Dhuhr?.time).format("HH:mm A") +
+															dayjs(data?.Dhuhr?.time).format("HH:mm A") +
 															"--" +
-															moment(data?.Asr?.time).format("HH:mm A")
+															dayjs(data?.Asr?.time).format("HH:mm A")
 														);
 													case "Asr":
 														return (
-															moment(data?.Asr?.time).format("HH:mm A") +
+															dayjs(data?.Asr?.time).format("HH:mm A") +
 															"--" +
-															moment(data?.Maghrib?.time).format("HH:mm A")
+															dayjs(data?.Maghrib?.time).format("HH:mm A")
 														);
 													case "Sunset":
-														return moment(data?.Sunset?.time).format("HH:mm A");
+														return dayjs(data?.Sunset?.time).format("HH:mm A");
 													case "Maghrib":
 														return (
-															moment(data?.Maghrib?.time).format("HH:mm A") +
+															dayjs(data?.Maghrib?.time).format("HH:mm A") +
 															"--" +
-															moment(data?.Isha?.time).format("HH:mm A")
+															dayjs(data?.Isha?.time).format("HH:mm A")
 														);
 													case "Isha":
 														return (
-															moment(data?.Isha?.time).format("HH:mm A") +
+															dayjs(data?.Isha?.time).format("HH:mm A") +
 															"--" +
 															String(`00:00`)
 														);

@@ -1,12 +1,15 @@
 "use client";
-import React, { use, useEffect, useState } from "react";
-import { Button, Col, Form, Input, Row, Select } from "antd";
+import React, { useEffect, useState } from "react";
+import { Button, Col, Form, Input, Row, Select, message, Spin } from "antd";
 import { useRouter } from "next/navigation";
-
 import { Country, City } from "country-state-city";
 import { ICountry, IState, ICity } from "country-state-city";
-import moment, { ISO_8601 } from "moment";
-import { getCurrentDate } from "@/app/utility/utility";
+import { doesItemExist, getCurrentDate } from "@/app/utility/utility";
+import dayjs, { Dayjs } from "dayjs";
+import isEqual from "lodash/isEqual";
+import { LoadingOutlined } from "@ant-design/icons";
+import { has } from "lodash";
+
 const { Option } = Select;
 
 const layout = {
@@ -16,6 +19,10 @@ const layout = {
 
 interface User {
 	name: string;
+	country: string;
+	city: string | null;
+	mazhab: string;
+	method: string;
 }
 const tailLayout = {
 	wrapperCol: {
@@ -29,136 +36,109 @@ const tailLayout = {
 const Seetings = () => {
 	const router = useRouter();
 	const [form] = Form.useForm();
-	const [country, setCountry] = useState("");
 	const [countryCode, setCountryCode] = useState("");
-	const [regTime, setRegTime] = useState(moment());
+	const [hasCity, setHasCity] = useState(false);
+	const [regTime, setRegTime] = useState<Dayjs>(dayjs());
 	const [currentUser, setCurrentUser] = useState<User | null>(null);
+	const currentYear = parseInt(dayjs().format("YYYY"));
+	const currentMonth = parseInt(dayjs().format("MM"));
+	const [loading, setLoading] = useState(false);
+	const [messageApi, contextHolder] = message.useMessage();
 
-	const WaqtName = [
-		"Fajr",
-		"Sunrise",
-		"Dhuhr",
-		"Asr",
-		"Sunset",
-		"Maghrib",
-		"Isha",
-	];
+	const onChangeMazhab = (value: string) => {};
 
-	function doesItemExist(dateKey: moment.Moment) {
-		return localStorage.getItem(dateKey.format("DD-MM-YYYY")) !== null;
-	}
-
-	const onChangeMazhab = (value: string) => {
-		switch (value) {
-			case "01":
-				form.setFieldsValue({ note: "Hi, man!" });
-				break;
-			case "02":
-				form.setFieldsValue({ note: "Hi, lady!" });
-				break;
-			case "03":
-				form.setFieldsValue({ note: "Hi there!" });
-				break;
-			default:
-		}
-	};
-
-	const onChangeCity = (value: string) => {
-		switch (value) {
-			case "Dhaka":
-				form.setFieldsValue({ note: "Hello, from Dhaka!" });
-				break;
-			case "Noakhali":
-				form.setFieldsValue({ note: "Hello, Noakhali" });
-				break;
-			case "other":
-				form.setFieldsValue({ note: "Hello there!" });
-				break;
-			default:
-		}
-	};
+	const onChangeCity = (value: string) => {};
 
 	useEffect(() => {
 		const storedUser = localStorage.getItem("userData");
 
 		if (storedUser) {
 			setCurrentUser(JSON.parse(storedUser));
+			setHasCity((prevHasCity) => {
+				const citiesForCountry = City.getCitiesOfCountry(countryCode);
+				return (citiesForCountry?.length ?? 0) > 0;
+			});
 		}
-	}, []);
+	}, [countryCode, hasCity, regTime]);
 
 	const onChangeCountry = (value: string) => {
 		form.setFieldsValue({
 			city: null,
-			// or provide an initial value if needed
 		});
-
-		setCountry(value);
 		setCountryCode((prevCountryCode) => {
 			const selectedCountryCode = Country.getAllCountries().find(
 				(e) => e.name === value
 			);
 			return selectedCountryCode?.isoCode || prevCountryCode;
 		});
-	};
-	const onChangeMethod = (value: string) => {
-		switch (value) {
-			case "01":
-				form.setFieldsValue({ note: "Thanks " });
-				break;
-			case "02":
-				form.setFieldsValue({ note: "Thanks " });
-				break;
 
-			default:
-		}
+		setHasCity((prevHasCity) => {
+			const citiesForCountry = City.getCitiesOfCountry(countryCode);
+			return (citiesForCountry?.length ?? 0) > 0;
+		});
 	};
+
+	const onChangeMethod = (value: string) => {};
 
 	const onFinish = async (values: any) => {
 		setRegTime(getCurrentDate());
 		values.regTime = regTime;
 		localStorage.setItem("userData", JSON.stringify(values));
-
 		router.push("/today");
 	};
 
 	const onReset = () => {
 		form.resetFields();
 	};
-	const onUpdate = async (values: any) => {
-		const storedData = localStorage.getItem("userData");
-		if (storedData) {
-			const existingData = JSON.parse(storedData);
-			const isDataChanged = Object.keys(values).some((key) => {
-				return values[key] !== existingData[key];
-			});
-			if (isDataChanged) {
-				setRegTime(getCurrentDate());
-				values.regTime = regTime;
-				values.name = values.name || currentUser?.name || "";
-				localStorage.setItem("userData", JSON.stringify(values));
-				const todaysData = localStorage.getItem(regTime.format("DD-MM-YYYY"));
-				if (todaysData) {
-					localStorage.setItem("previousData", todaysData);
-				}
-				while (doesItemExist(regTime)) {
-					const dateKey = regTime.format("DD-MM-YYYY");
-					const itemValue = localStorage.getItem(dateKey);
-					itemValue && localStorage.removeItem(dateKey);
-					setRegTime(regTime.add(1, "days"));
-				}
 
-				console.log("Data updated successfully");
-				router.push("/today");
-			} else {
-				console.log("No Change Detected");
+	const onUpdate = async (values: any) => {
+		try {
+			setLoading(true);
+			const storedData = localStorage.getItem("userData");
+			const info = () => {
+				messageApi.info("Data not found for your country");
+			};
+			if (storedData) {
+				const existingData = JSON.parse(storedData);
+				const isDataChanged = !isEqual(values, existingData);
+				if (isDataChanged) {
+					const response = await fetch(
+						`https://api.aladhan.com/v1/calendarByCity/${currentYear}/${currentMonth}?city=${values.city}&country=${values.country}&method=${values.method}&iso8601=true`
+					);
+
+					if (!response.ok) {
+						// console.error(`Error: ${response.status} - ${response.statusText}`);
+						info();
+						return;
+					} else {
+						let newRegTime = regTime;
+						while (doesItemExist(newRegTime.format("DD-MM-YYYY"))) {
+							const itemValue = localStorage.getItem(
+								newRegTime.format("DD-MM-YYYY")
+							);
+
+							if (itemValue) {
+								localStorage.removeItem(newRegTime.format("DD-MM-YYYY"));
+							}
+
+							newRegTime = newRegTime.add(1, "day"); // Update newRegTime here
+							setRegTime(newRegTime); // Update the state with the new value
+							console.log(newRegTime.format("DD-MM-YYYY"));
+						}
+						values.regTime = regTime;
+						localStorage.setItem("userData", JSON.stringify(values));
+						router.push("/today");
+					}
+				}
 			}
-		} else {
-			console.log("No existing data found in LocalStorage");
+		} finally {
+			setLoading(false);
 		}
 	};
 
 	return (
 		<Row>
+			{contextHolder}
 			<Col xs={0} sm={4} md={6} lg={6}></Col>
 			<Col xs={24} sm={16} md={12} lg={12} xl={10}>
 				<Form
@@ -179,7 +159,6 @@ const Seetings = () => {
 							placeholder={
 								currentUser ? currentUser?.name : "Please enter your name"
 							}
-							disabled={currentUser ? true : false}
 						/>
 					</Form.Item>
 					<Form.Item
@@ -188,7 +167,10 @@ const Seetings = () => {
 						rules={[{ required: true }]}
 					>
 						<Select
-							placeholder="Select your Country"
+							showSearch
+							placeholder={
+								currentUser ? currentUser?.country : "Select your Country"
+							}
 							onChange={onChangeCountry}
 							allowClear
 						>
@@ -199,9 +181,18 @@ const Seetings = () => {
 							))}
 						</Select>
 					</Form.Item>
-					<Form.Item name="city" label="City" rules={[{ required: true }]}>
+
+					<Form.Item
+						name="city"
+						label="City"
+						rules={[{ required: hasCity ? true : false }]}
+						style={{
+							display: hasCity ? "block" : "none",
+						}}
+					>
 						<Select
-							placeholder="Select your City"
+							showSearch
+							placeholder={"Select your City"}
 							onChange={onChangeCity}
 							allowClear
 						>
@@ -229,7 +220,7 @@ const Seetings = () => {
 						rules={[{ required: true }]}
 					>
 						<Select
-							placeholder="Select your Method for Salat Time Calculation"
+							placeholder={"Select your Method for Salat Time Calculation"}
 							onChange={onChangeMethod}
 							allowClear
 						>
@@ -246,7 +237,21 @@ const Seetings = () => {
 								style={{ marginRight: "8px" }}
 								htmlType="submit"
 							>
-								Update
+								{loading ? (
+									<div>
+										<Spin
+											indicator={
+												<LoadingOutlined
+													style={{ fontSize: 24, color: "white" }}
+													spin
+												/>
+											}
+										/>
+										<span style={{ marginLeft: 8 }}>Updating...</span>
+									</div>
+								) : (
+									"Update"
+								)}
 							</Button>
 						) : (
 							<Button

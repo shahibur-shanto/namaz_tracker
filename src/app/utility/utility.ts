@@ -1,19 +1,21 @@
-import moment, { Moment } from "moment";
+import dayjs, { Dayjs } from "dayjs";
 
 export const getCurrentDate = () => {
-	const today = moment();
+	const today = dayjs();
 	return today;
 };
 
-export const formatDate = (date: Moment): string => {
-	return moment(date).format("DD-MM-YYYY");
+export const formatDate = (date: Dayjs): string => {
+	return dayjs(date).format("DD-MM-YYYY");
 };
-
 
 export const removeOffsetFromWaqtTime = (waqtTime: string) => {
 	return waqtTime.replace(/\s*\(\+\d+\)/, ""); // Remove "(+06)" or similar pattern
 };
 
+export function doesItemExist(dateKey: string) {
+	return localStorage.getItem(dateKey) !== null;
+}
 // export const isFutureWaqt = (presentSelectedDate: Date, waqtTime: string) => {
 // 	const currentDateTime = getCurrentDate();
 

@@ -1,6 +1,5 @@
 "use client";
-
-import moment, { Moment } from "moment";
+import dayjs, { Dayjs } from "dayjs";
 import React, {
 	createContext,
 	useContext,
@@ -10,8 +9,8 @@ import React, {
 } from "react";
 
 interface DateContextProps {
-	selectedDate: Moment; // Change the type to Moment
-	setSelectedDate: Dispatch<SetStateAction<Moment>>; // Change the type to Moment
+	selectedDate: Dayjs; // Change the type to Moment
+	setSelectedDate: Dispatch<SetStateAction<Dayjs>>; // Change the type to Moment
 }
 
 const DateContext = createContext<DateContextProps | undefined>(undefined);
@@ -19,7 +18,7 @@ const DateContext = createContext<DateContextProps | undefined>(undefined);
 export const DateProviders: React.FC<{ children: React.ReactNode }> = ({
 	children,
 }) => {
-	const [selectedDate, setSelectedDate] = useState<Moment>(moment()); // Initialize with moment()
+	const [selectedDate, setSelectedDate] = useState<Dayjs>(dayjs()); // Initialize with moment()
 
 	return (
 		<DateContext.Provider
