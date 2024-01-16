@@ -49,17 +49,58 @@ const Seetings = () => {
 
 	const onChangeCity = (value: string) => {};
 
+	// useEffect(() => {
+	// 	console.log("Updated Country Code:", countryCode);
+	// }, [countryCode]);
 	useEffect(() => {
 		const storedUser = localStorage.getItem("userData");
 
 		if (storedUser) {
-			setCurrentUser(JSON.parse(storedUser));
+			const parsedUser = JSON.parse(storedUser);
+			setCurrentUser(parsedUser);
+
+			console.log("Parsed User Country:", parsedUser?.country);
+
+			setCountryCode((prevCountryCode) => {
+				const selectedCountryCode = Country.getAllCountries().find(
+					(e) => e.name === parsedUser?.country
+				);
+				console.log(selectedCountryCode?.isoCode);
+				return selectedCountryCode?.isoCode || prevCountryCode;
+			});
+			console.log(countryCode);
 			setHasCity((prevHasCity) => {
 				const citiesForCountry = City.getCitiesOfCountry(countryCode);
-				return (citiesForCountry?.length ?? 0) > 0;
+				console.log("Cities for Country:", citiesForCountry);
+
+				const hasCity = (citiesForCountry?.length ?? 0) > 0;
+				if (prevHasCity !== hasCity) {
+					// Only log when the value changes
+					console.log("Has City Changed:", hasCity);
+				}
+				return hasCity;
 			});
 		}
-	}, [countryCode, hasCity, regTime]);
+
+		//   if (storedUser) {
+
+		// 	const storedUser = localStorage.getItem("userData");
+
+		// 	setCurrentUser(JSON.parse(storedUser));
+		// 	setCountryCode((prevCountryCode) => {
+		// 		const selectedCountryCode = Country.getAllCountries().find(
+		// 			(e) => e.name === currentUser?.country
+		// 		);
+		// 		return selectedCountryCode?.isoCode || prevCountryCode;
+		// 	});
+		// 	setHasCity((prevHasCity) => {
+		// 		const citiesForCountry = City.getCitiesOfCountry(countryCode);
+		// 		return (citiesForCountry?.length ?? 0) > 0;
+		// 	});
+		// }
+		// console.log(hasCity);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [countryCode]);
 
 	const onChangeCountry = (value: string) => {
 		form.setFieldsValue({
@@ -187,7 +228,7 @@ const Seetings = () => {
 						label="City"
 						rules={[{ required: hasCity ? true : false }]}
 						style={{
-							display: hasCity ? "block" : "none",
+							display: hasCity && currentUser?.city ? "block" : "none",
 						}}
 					>
 						<Select

@@ -4,7 +4,7 @@ import { Flex } from "antd";
 import { FaArrowLeft, FaArrowRight } from "react-icons/fa";
 import { useDateContext } from "@/app/Context/store";
 import { getCurrentDate, formatDate } from "@/app/utility/utility";
-import moment from "moment";
+import dayjs from "dayjs";
 
 const boxStyle: React.CSSProperties = {
 	width: "100%",
@@ -27,13 +27,13 @@ const DateSelect = () => {
 	}, [setSelectedDate]);
 
 	const updateDateForward = () => {
-		const newDate = moment(selectedDate);
+		const newDate = dayjs(selectedDate);
 		newDate.add(1, "day");
 		setSelectedDate(newDate);
 	};
 
 	const updateDateBackward = () => {
-		const newDate = moment(selectedDate);
+		const newDate = dayjs(selectedDate);
 		newDate.subtract(1, "day");
 		setSelectedDate(newDate);
 	};
