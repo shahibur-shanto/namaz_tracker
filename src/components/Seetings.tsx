@@ -49,9 +49,20 @@ const Seetings = () => {
 
 	const onChangeCity = (value: string) => {};
 
-	// useEffect(() => {
-	// 	console.log("Updated Country Code:", countryCode);
-	// }, [countryCode]);
+	useEffect(() => {
+		setHasCity((prevHasCity) => {
+			const citiesForCountry = City.getCitiesOfCountry(countryCode);
+			console.log("Cities for Country:", citiesForCountry);
+
+			const hasCity = (citiesForCountry?.length ?? 0) > 0;
+			if (prevHasCity !== hasCity) {
+				// Only log when the value changes
+				console.log("Has City Changed:", hasCity);
+			}
+			return hasCity;
+		});
+		console.log("Updated Country Code:", countryCode);
+	}, [countryCode]);
 	useEffect(() => {
 		const storedUser = localStorage.getItem("userData");
 
