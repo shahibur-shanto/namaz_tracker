@@ -224,7 +224,7 @@ const Seetings = () => {
 						label="City"
 						rules={[{ required: hasCity ? true : false }]}
 						style={{
-							display: hasCity && currentUser?.city ? "block" : "none",
+							display: hasCity ? "block" : "none",
 						}}
 					>
 						<Select
