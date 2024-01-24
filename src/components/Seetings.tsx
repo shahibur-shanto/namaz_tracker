@@ -68,7 +68,7 @@ const Seetings = () => {
 				console.log(selectedCountryCode?.isoCode);
 				return selectedCountryCode?.isoCode || prevCountryCode;
 			});
-			console.log(countryCode);
+			// console.log(countryCode);
 			setHasCity((prevHasCity) => {
 				const citiesForCountry = City.getCitiesOfCountry(countryCode);
 				console.log("Cities for Country:", citiesForCountry);
@@ -82,40 +82,25 @@ const Seetings = () => {
 			});
 		}
 
-		//   if (storedUser) {
-
-		// 	const storedUser = localStorage.getItem("userData");
-
-		// 	setCurrentUser(JSON.parse(storedUser));
-		// 	setCountryCode((prevCountryCode) => {
-		// 		const selectedCountryCode = Country.getAllCountries().find(
-		// 			(e) => e.name === currentUser?.country
-		// 		);
-		// 		return selectedCountryCode?.isoCode || prevCountryCode;
-		// 	});
-		// 	setHasCity((prevHasCity) => {
-		// 		const citiesForCountry = City.getCitiesOfCountry(countryCode);
-		// 		return (citiesForCountry?.length ?? 0) > 0;
-		// 	});
-		// }
-		// console.log(hasCity);
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [countryCode]);
+		//eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []);
 
 	const onChangeCountry = (value: string) => {
 		form.setFieldsValue({
 			city: null,
 		});
-		setCountryCode((prevCountryCode) => {
-			const selectedCountryCode = Country.getAllCountries().find(
-				(e) => e.name === value
-			);
-			return selectedCountryCode?.isoCode || prevCountryCode;
-		});
+
+		const selectedCountryCode = Country.getAllCountries().find(
+			(e) => e.name === value
+		);
+		setCountryCode(selectedCountryCode?.isoCode || "");
 
 		setHasCity((prevHasCity) => {
-			const citiesForCountry = City.getCitiesOfCountry(countryCode);
-			return (citiesForCountry?.length ?? 0) > 0;
+			const citiesForCountry = City.getCitiesOfCountry(
+				selectedCountryCode?.isoCode || ""
+			);
+			const hasCity = (citiesForCountry?.length ?? 0) > 0;
+			return hasCity;
 		});
 	};
 
