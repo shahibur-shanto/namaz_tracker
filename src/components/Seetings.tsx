@@ -8,7 +8,6 @@ import { doesItemExist, getCurrentDate } from "@/app/utility/utility";
 import dayjs, { Dayjs } from "dayjs";
 import isEqual from "lodash/isEqual";
 import { LoadingOutlined } from "@ant-design/icons";
-import { has } from "lodash";
 
 const { Option } = Select;
 
@@ -96,7 +95,7 @@ const Seetings = () => {
 		//eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
-	const onChangeCountry = (value: string) => {
+	const onChangeCountry = async (value: string) => {
 		form.setFieldsValue({
 			city: null,
 		});
@@ -105,6 +104,7 @@ const Seetings = () => {
 			(e) => e.name === value
 		);
 		setCountryCode(selectedCountryCode?.isoCode || "");
+		await new Promise((resolve) => setTimeout(resolve, 0));
 
 		setHasCity((prevHasCity) => {
 			const citiesForCountry = City.getCitiesOfCountry(
